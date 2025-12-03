@@ -1,0 +1,10 @@
+# Do not commit encrypted seed
+encrypted_seed.txt
+# Python cache
+__pycache__/
+*.pyc
+# Environment
+.env
+# IDE
+.vscode/
+.idea/
