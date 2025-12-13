@@ -3,14 +3,28 @@ import time
 import hmac
 import hashlib
 from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
 
 
 # -----------------------------
-#  Load Keys
+#  RSA KEY GENERATION
+# -----------------------------
+def generate_rsa_keypair(key_size: int = 2048):
+    """
+    Generate RSA private & public key pair
+    """
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=key_size
+    )
+    public_key = private_key.public_key()
+    return private_key, public_key
+
+
+# -----------------------------
+#  LOAD KEYS
 # -----------------------------
 def load_private_key(path: str):
-    """Load a PEM private key from file."""
     with open(path, "rb") as key_file:
         return serialization.load_pem_private_key(
             key_file.read(),
@@ -19,16 +33,14 @@ def load_private_key(path: str):
 
 
 def load_public_key(path: str):
-    """Load a PEM public key from file."""
     with open(path, "rb") as key_file:
         return serialization.load_pem_public_key(key_file.read())
 
 
 # -----------------------------
-#  Decrypt Seed (API)
+#  DECRYPT SEED
 # -----------------------------
 def decrypt_seed(encrypted_seed_b64: str) -> str:
-    """Decrypt seed using student's private key inside container."""
     PRIVATE_KEY_PATH = "/app/student_private.pem"
 
     private_key = load_private_key(PRIVATE_KEY_PATH)
@@ -47,10 +59,9 @@ def decrypt_seed(encrypted_seed_b64: str) -> str:
 
 
 # -----------------------------
-#  RSA-PSS SIGN (for prove_commit.py)
+#  RSA SIGN
 # -----------------------------
 def sign_message_rsa_pss(private_key, message_bytes: bytes) -> str:
-    """Sign message using RSA-PSS + SHA256, return Base64 string."""
     signature = private_key.sign(
         message_bytes,
         padding.PSS(
@@ -63,12 +74,11 @@ def sign_message_rsa_pss(private_key, message_bytes: bytes) -> str:
 
 
 # -----------------------------
-#  RSA ENCRYPT WITH PUBLIC KEY
+#  RSA ENCRYPT
 # -----------------------------
 def encrypt_with_public_key(public_key, message: str) -> str:
-    """Encrypt message using RSA-OAEP. Input is string → encrypt as bytes."""
     if isinstance(message, str):
-        message = message.encode()   # <-- FIX ADDED HERE
+        message = message.encode()
 
     encrypted = public_key.encrypt(
         message,
@@ -94,7 +104,7 @@ def generate_2fa_code(seed: str) -> str:
 
 
 # -----------------------------
-#  VERIFY 2FA CODE
+#  VERIFY 2FA
 # -----------------------------
 def verify_2fa_code(seed: str, code: str) -> bool:
     expected = generate_2fa_code(seed)
