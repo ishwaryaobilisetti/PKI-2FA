@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pki2fa_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - seed-data:/data
+      - cron-output:/cron
+    environment:
+      - TZ=Asia/Kolkata
+    restart: always
+
+volumes:
+  seed-data:
+  cron-output:

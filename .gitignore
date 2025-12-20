@@ -1,0 +1,8 @@
+encrypted_seed.txt
+__pycache__/
+*.pyc
+.env
+.vscode/
+.idea/
+data/seed.txt
+prove_commit.py

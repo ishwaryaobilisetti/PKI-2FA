@@ -1,0 +1,4 @@
+PYTHONPATH=/
+PATH=/usr/local/bin:/usr/bin:/bin
+
+* * * * * cd / && python3 -m scripts.log_2fa_cron >> /var/log/cron.log 2>&1
